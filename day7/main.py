@@ -1,6 +1,37 @@
 import functools
 
-HANDS_ORDER = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+HANDS_ORDER = ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2", "J"]
+
+
+def determine_hands_type_with_joker(hand: str) -> int:
+    counts = {}
+    num_j = 0
+    for s in hand:
+        if s == "J":
+            num_j += 1
+        else:
+            counts[s] = counts.get(s, 0) + 1
+
+    cards_count = sorted(counts.values(), reverse=True)
+    if num_j == 5:
+        return 7
+    cards_count[0] += num_j
+    if cards_count[0] == 5:
+        return 7
+    if cards_count[0] == 4:
+        return 6
+    if cards_count[0] == 3:
+        if cards_count[1] == 2:
+            return 5
+        return 4
+    if cards_count[0] == 2:
+        if cards_count[1] == 2:
+            return 3
+        return 2
+    if cards_count[0] == 1:
+        return 1
+
+    raise Exception(f"Unknown card type: {hand}")
 
 
 def determine_hands_type(hand: str) -> int:
@@ -40,7 +71,9 @@ def compare_hands_order(hand1: str, hand2: str) -> int:
 
 
 def compare_hands(hand1: str, hand2: str) -> int:
-    type1, type2 = determine_hands_type(hand1), determine_hands_type(hand2)
+    # type1, type2 = determine_hands_type(hand1), determine_hands_type(hand2)
+    type1 = determine_hands_type_with_joker(hand1)
+    type2 = determine_hands_type_with_joker(hand2)
     if type1 < type2:
         return -1
     if type1 > type2:
