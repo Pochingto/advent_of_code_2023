@@ -20,7 +20,6 @@ def get_next_i_j(i: int, j: int, direction: str) -> tuple[int, int]:
         return i + 1, j
     raise ValueError("unknown direction")
 
-
 def dijkstra_algo(graph: list[str]) -> int:
     pq = PriorityQueue()
     pq.put((0, 0, 0, ">", 0))
@@ -66,8 +65,62 @@ def dijkstra_algo(graph: list[str]) -> int:
     raise Exception("cannot reach bottom right")
 
 
+def dijkstra_algo_part2(graph: list[str]) -> int:
+    pq = PriorityQueue()
+    pq.put((0, 0, 0, ">", 0))
+
+    visited = set()
+    while pq:
+        dist, i, j, direction, count = pq.get()
+        # visited.add((i, j))
+        if i == len(graph) - 1 and j == len(graph[i]) - 1 and count >= 4:
+            return dist
+
+        if count >= 4:
+            for neighbor_dir in get_left_right_dirs(direction):
+                next_i, next_j = get_next_i_j(i, j, neighbor_dir)
+                if next_i < 0 or next_i >= len(graph):
+                    continue
+                if next_j < 0 or next_j >= len(graph[i]):
+                    continue
+
+                if not (next_i, next_j, neighbor_dir, 1) in visited:
+                    visited.add((next_i, next_j, neighbor_dir, 1))
+                    pq.put(
+                        (
+                            dist + int(graph[next_i][next_j]),
+                            next_i,
+                            next_j,
+                            neighbor_dir,
+                            1,
+                        )
+                    )
+        if count < 10:
+            next_i, next_j = get_next_i_j(i, j, direction)
+            if next_i < 0 or next_i >= len(graph):
+                continue
+            if next_j < 0 or next_j >= len(graph[i]):
+                continue
+            if not (next_i, next_j) in visited:
+                visited.add((next_i, next_j, direction, count + 1))
+                pq.put(
+                    (
+                        dist + int(graph[next_i][next_j]),
+                        next_i,
+                        next_j,
+                        direction,
+                        count + 1,
+                    )
+                )
+
+    raise Exception("cannot reach bottom right")
+
+
 if __name__ == "__main__":
     with open("input.txt", "r", encoding="utf-8") as f:
         graph = [line.strip() for line in f]
         dist = dijkstra_algo(graph)
         print(f"Least heat loss: {dist}")
+
+        dist = dijkstra_algo_part2(graph)
+        print(f"part 2 least heat loss: {dist}")
